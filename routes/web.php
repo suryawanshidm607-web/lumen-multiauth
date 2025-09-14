@@ -22,9 +22,8 @@
  $router->post('/posts','PostController@store');
  $router->get('/posts/{post}','PostController@show');
  $router->put('/posts/{post}','PostController@update');
- // $router->patch('/posts/{post}','PostController@update');
  $router->delete('/posts/{post}','PostController@destroy');
 
-
+ $router->post('/comments','CommentController@store');
  $router->get('/comments','CommentController@show');
  $router->put('/comments','CommentController@update');

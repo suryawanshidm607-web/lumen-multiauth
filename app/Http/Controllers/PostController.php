@@ -42,7 +42,7 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        // dd("dipalee");
+       
         $this->validate($request, [
             'title' => 'required|string|max:255',
             'body' => 'required|string'
@@ -60,12 +60,9 @@ class PostController extends Controller
      */
     public function show($post)
     {
-        //  $post = Post::findOrFail($post);
-
-         $post = Post::with('comments')->findOrFail($post);
-        //  dd($post);
-
-         if (!$post) {
+        $post = Post::with('comments')->findOrFail($post);
+        
+        if (!$post) {
             return $this->errorResponse('Post not found', Response::HTTP_NOT_FOUND);
         }
 
@@ -77,16 +74,16 @@ class PostController extends Controller
      */
     public function update(Request $request, $post)
     {
-        // $post = Post::find($id);
+        $post = Post::find($id);
 
-        // if (!$post) {
-        //     return $this->errorResponse('Post not found', Response::HTTP_NOT_FOUND);
-        // }
+        if (!$post) {
+            return $this->errorResponse('Post not found', Response::HTTP_NOT_FOUND);
+        }
 
-        // $post->fill($request->all());
-        // $post->save();
+        $post->fill($request->all());
+        $post->save();
 
-        // return $this->successResponse($post, Response::HTTP_OK);
+        return $this->successResponse($post, Response::HTTP_OK);
     }
 
     /**
@@ -94,14 +91,14 @@ class PostController extends Controller
      */
     public function destroy($post)
     {
-        // $post = Post::find($id);
+        $post = Post::find($id);
 
-        // if (!$post) {
-        //     return $this->errorResponse('Post not found', Response::HTTP_NOT_FOUND);
-        // }
+        if (!$post) {
+            return $this->errorResponse('Post not found', Response::HTTP_NOT_FOUND);
+        }
 
-        // $post->delete();
+        $post->delete();
 
-        // return $this->successResponse(null, Response::HTTP_NO_CONTENT);
+        return $this->successResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

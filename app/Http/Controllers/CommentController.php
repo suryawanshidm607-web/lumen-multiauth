@@ -25,9 +25,37 @@ class CommentController extends Controller
     /**
      * Display all posts
      */
-    public function create(Request $request){
-        $id= $request->get('id');
+    public function store(Request $request){
+        $id   = $request->get('id');
         $type = $request->get('type');
+        $comment = $request->get("comment");
+
+        $typeMap = ['post'  => \App\Models\Post::class,
+                    'video' =>  \App\Models\Video::class,
+                   ];
+        
+        if (!array_key_exists($type, $typeMap)) {
+            return $this->errorResponse('Invalid type provided', Response::HTTP_BAD_REQUEST);
+        }
+        
+        $modelClass = $typeMap[$type];
+
+        $model      = $modelClass::findOrFail($id);
+        $NewComment    = $model->comments()->create([
+                        'body' => $comment,
+                        'commentable_type' => $modelClass,
+                        'commentable_id'=> $id
+                        ]);
+
+
+        if (!$NewComment) {
+            return $this->errorResponse('There is no comment for this post', Response::HTTP_NOT_FOUND);
+        }
+        return $this->successResponse($NewComment);
+                   
+
+
+        
     }
      
     public function show(Request $request)
@@ -60,9 +88,10 @@ class CommentController extends Controller
     }
 
     public function update(Request $request){
-        $id      = $request->get('id');
-        $type    = $request->get('type');
-        $comment = $request->get('comment');
+        $id             = $request->get('id');
+        $type           = $request->get('type');
+        $commentable_id = $request->get('commentable_id');
+        $Reqcomment        = $request->get('comment');
         
         $typeMap = ['post'  => \App\Models\Post::class,
                     'video' =>  \App\Models\Video::class,
@@ -74,13 +103,19 @@ class CommentController extends Controller
 
         $modelClass = $typeMap[$type];
 
-        $model = $modelClass::findOrFail($id);
+        $model = $modelClass::findOrFail($commentable_id);
+
+        $comment = $model->comments()->where('id', $id)->first();
+
+        if (! $comment) {
+         return $this->errorResponse('There is no comment for this '.$type, Response::HTTP_NOT_FOUND);
+        }
+
+        $comment = $comment->update([
+                     'body' => $Reqcomment,
+                   ]);
         
-        $comment = $model->comments()->update(
-                        ['id' => $request->id ?? null], // if updating
-                        ['body' => $request->comment]
-                    );
-         if (!$comment) {
+        if (!$comment) {
             return $this->errorResponse('There is no comment for this post', Response::HTTP_NOT_FOUND);
         }
         return $this->successResponse($comment);            
